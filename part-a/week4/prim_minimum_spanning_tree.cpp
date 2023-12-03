@@ -1,4 +1,4 @@
-// Graph and Dijkstra C++ implementation
+// Prim Minimum spanning tree algorithm implementation
 
 #include <iostream>
 #include <iomanip>

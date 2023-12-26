@@ -29,6 +29,7 @@
 #include <unordered_set>
 #include <stack>
 #include <sstream>
+#include <fstream>
 
 enum class HexStatus {EMPTY, BLUE, RED};
 
@@ -119,7 +120,7 @@ class HexBoard{
         bool isOOB(const unsigned& x, const unsigned& y);
         bool isEmpty(const unsigned& x, const unsigned& y);
         void getHumanMove(unsigned& x, unsigned& y);
-        void getAIMove(const Player& p, unsigned& x, unsigned& y, const unsigned& N);
+        void getAIMove(const Player& p, unsigned& x, unsigned& y, const unsigned& N, bool save = true);
         int playTurn(const Player& human, const Player& ai, const unsigned& N);
         double gwins = 0;
         void printAIConf();
@@ -429,7 +430,15 @@ void HexBoard::getHumanMove(unsigned& x, unsigned& y){
 }
 
 // Get a move from the AI player based on specified difficulty and number of simulations.
-void HexBoard::getAIMove(const Player& p, unsigned& x, unsigned& y, const unsigned& N){
+void HexBoard::getAIMove(const Player& p, unsigned& x, unsigned& y, const unsigned& N, bool save){
+
+    std::ofstream of;
+    static int turn = 0;
+    if (save){    
+        std::string file_name = "aidata" + std::to_string(turn) + ".txt";
+        of.open(file_name);
+        of << "turn,x,y,conf" << std::endl; 
+    }
 
     unsigned tx, ty;
     double wins = 0;
@@ -456,7 +465,23 @@ void HexBoard::getAIMove(const Player& p, unsigned& x, unsigned& y, const unsign
             }
             revertRandom();
             undo(p, tx, ty);
+
+            if (save)
+                of << turn << ',' << tx  << ',' << ty << ',' << wins << std::endl;
+        
+        } else {
+            
+            if (save){
+                of << turn << "," << tx << ',' << ty << ',';
+                of << 100 + static_cast<int>(edgeList[i]->s) << std::endl;
+            }
+        
         }
+        
+    }
+    if (save){
+        turn++;
+        of.close();
     }
 }
 
